@@ -27,7 +27,6 @@ Welcome to the Movie App! This application allows users to browse movies, filter
 - **API**: RESTful API for communication between frontend and backend
 
 ## Installation
-
 ### Clone the repository
 ```bash
 git clone https://github.com/yourusername/movie-app.git
@@ -38,3 +37,6 @@ run the app : npm run dev
 backend app 
 install packages: npm i
 run the app: npm start
+Swagger Link
+http://localhost:4001/api
+
