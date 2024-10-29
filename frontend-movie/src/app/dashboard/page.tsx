@@ -119,7 +119,7 @@ export default function DashboardPage() {
             </div>
           ))
         ) : (
-          !loading && <p className="text-gray-600 text-center">No movies found.</p>
+          !loading && <p className="text-gray-600 text-left">No movies found.</p>
         )}
       </div>
     </div>

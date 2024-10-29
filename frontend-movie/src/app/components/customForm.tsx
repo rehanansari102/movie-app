@@ -40,7 +40,7 @@ const AuthenticationForm = () => {
           password: formData.password,
         });
         if(response){
-          localStorage.setItem("authToken", response.accessToken);
+          localStorage.setItem("authToken", response.data?.accessToken);
           router.push('/dashboard');
         }
         // Handle signup success
