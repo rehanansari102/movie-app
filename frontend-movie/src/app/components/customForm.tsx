@@ -28,7 +28,6 @@ const AuthenticationForm = () => {
         // Login API call
         const response = await login({ email: formData.email, password: formData.password });
         if(response){
-          localStorage.setItem("authToken", response.accessToken);
           router.push('/dashboard');
         }
         // Handle login success
@@ -40,18 +39,18 @@ const AuthenticationForm = () => {
           password: formData.password,
         });
         if(response){
-          localStorage.setItem("authToken", response.data?.accessToken);
           router.push('/dashboard');
         }
         // Handle signup success
       }
       setErrorMessage(""); // Clear error message on success
-    } catch (error) {
+    } catch (error : any) {
       // Catch error and set the error message
+      console.log(error);
       setErrorMessage(
         isSignIn
           ? "Invalid email or password. Please try again."
-          : "Signup failed. Please check your details and try again."
+          :error?.response?.data?.message
       );
     }
   };

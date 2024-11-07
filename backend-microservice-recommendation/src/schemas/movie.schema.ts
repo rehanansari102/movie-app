@@ -16,6 +16,9 @@ export class Movie {
 
   @Prop({ type: String, ref: 'Category' })
   categoryId: string;
+
+  @Prop({ type: String, ref: 'User' })
+  userId: string;
 }
 
 export const MovieSchema = SchemaFactory.createForClass(Movie);

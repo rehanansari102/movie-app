@@ -2,11 +2,13 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Movie } from '../schemas/movie.schema';
+import { Rating } from 'src/schemas/rating.schema';
 
 @Injectable()
 export class RecommendationService {
   constructor(
     @InjectModel('Movie') private readonly movieModel: Model<Movie>,
+    @InjectModel('Rating') private readonly ratingModel: Model<Rating>,
   ) {}
 
   // Recommend movies for a user based on some logic
@@ -15,7 +17,9 @@ export class RecommendationService {
       const recommendedMovies = await this.getRecommendationsByUser(userId);
 
       if (!recommendedMovies || recommendedMovies.length === 0) {
-        throw new NotFoundException(`No recommendations found for user: ${userId}`);
+        throw new NotFoundException(
+          `No recommendations found for user: ${userId}`,
+        );
       }
 
       return recommendedMovies;
@@ -24,13 +28,63 @@ export class RecommendationService {
     }
   }
 
-  // Modular method for getting user-based recommendations
   private async getRecommendationsByUser(userId: string): Promise<Movie[]> {
-    // Example recommendation logic: Return 5 random movies for this user
-    return this.movieModel.aggregate([
-      { $match: { userId } },         // Filter movies by user ID
-      { $sample: { size: 10 } },       // Randomly sample 5 movies
-    ]).exec();
+    const userMovies = await this.ratingModel.aggregate([
+      { $match: { userId: userId } },
+      {
+        $lookup: {
+          from: 'movies',
+          let: { movieId: '$movieId' },
+          pipeline: [
+            { $match: { $expr: { $eq: ['$_id', { $toObjectId: '$$movieId' }] } } },
+          ],
+          as: 'movieDetails',
+        },
+      },
+      { 
+        $unwind: { 
+          path: '$movieDetails', 
+          preserveNullAndEmptyArrays: true 
+        } 
+      },
+      {
+        $project: { 
+          categoryId: '$movieDetails.categoryId', 
+          rating: 1 
+        } 
+      },
+    ]);
+  
+    const userCategories = userMovies.map(
+      (movie) => movie.movieDetails.categoryId,
+    );
+
+    if (userCategories.length === 0) {
+      console.log('No categories found for user movies');
+      return [];
+    }
+
+    return this.movieModel
+      .aggregate([
+        { $match: { categoryId: { $in: userCategories } } },
+        {
+          $lookup: {
+            from: 'ratings',
+            localField: '_id',
+            foreignField: 'movieId',
+            as: 'ratings',
+          },
+        },
+        {
+          $addFields: {
+            averageRating: { $avg: '$ratings.rating' },
+          },
+        },
+        { $match: { 'ratings.userId': { $ne: userId } } },
+        { $sort: { averageRating: -1 } },
+        { $limit: 10 },
+      ])
+      .exec();
   }
 
   // Future expansion: Implement collaborative or content-based filtering here

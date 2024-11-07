@@ -10,6 +10,23 @@ export class RatingService {
   constructor(@InjectModel('Rating') private readonly ratingModel: Model<Rating>) {}
 
   async create(createRatingDto: CreateRatingDto): Promise<Rating> {
-    return this.ratingModel.create(createRatingDto);
+    // Check if a rating already exists for the given movie and user
+    const existingRating = await this.ratingModel.findOne({
+      movieId: createRatingDto.movieId,
+      userId: createRatingDto?.userId,
+    });
+
+    if (existingRating) {
+      // If rating exists, update it
+      existingRating.rating = createRatingDto.rating;
+      return existingRating.save();
+    } else {
+      // If no rating exists, create a new one
+      const newRating = new this.ratingModel(createRatingDto);
+      return newRating.save();
+    }
+  }
+  async findUserRatingForMovie(movieId: string, userId: string) {
+    return await this.ratingModel.findOne({ movieId, userId }).exec();
   }
 }

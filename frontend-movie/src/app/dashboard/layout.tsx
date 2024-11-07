@@ -1,11 +1,11 @@
 // app/dashboard/layout.tsx
 'use client';
 
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const [authenticated, setAuthenticated] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -14,15 +14,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     if (!token) {
       router.push('/'); // Redirect to login page if not authenticated
-    } else {
-      setAuthenticated(true); // If token exists, allow access
-    }
+    } 
   }, [router]);
 
-  // Optionally render a loading spinner while checking authentication
-  if (!authenticated) {
-    return <div>Loading...</div>;
-  }
+
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -36,24 +31,24 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         {/* Navigation Links */}
         <nav className="space-x-6">
-          <a
+          <Link
             href="/dashboard"
             className="text-white hover:bg-indigo-500 px-3 py-2 rounded-md text-sm font-medium"
           >
             Home
-          </a>
+          </Link>
           {/* <a
             href="/dashboard/movies"
             className="text-white hover:bg-indigo-500 px-3 py-2 rounded-md text-sm font-medium"
           >
             Movies
           </a> */}
-          <a
+          <Link
             href="/dashboard/profile"
             className="text-white hover:bg-indigo-500 px-3 py-2 rounded-md text-sm font-medium"
           >
             Profile
-          </a>
+          </Link>
         </nav>
 
         {/* User Profile */}

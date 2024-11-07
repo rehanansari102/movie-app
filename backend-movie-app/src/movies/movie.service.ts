@@ -1,5 +1,5 @@
 // movie.service.ts
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { Movie } from '../schemas/movie.schema';
 import { CreateMovieDto } from '../dtos/movie.dto';
@@ -47,13 +47,24 @@ export class MovieService {
     return await this.movieModel.findById(id).exec();
   }
 
-  async getRecommendations(userId: string): Promise<Movie[]> {
+  async getRecommendations(userId: string): Promise<any> {
     try {
-      const response = await lastValueFrom(this.httpService.get(`${this.configService.get<string>('base_url')}/recommendations/${userId}`));
+      const response = await lastValueFrom(
+        this.httpService.get(
+          `${this.configService.get<string>('base_url')}/recommendations/${userId}`,
+        ),
+      );
       return response.data;
     } catch (error) {
-      console.error(error);
-      throw error;
+      // Log the error details for debugging
+      //console.error(error?.response?.data?.message || error?.message || 'Unknown error');
+
+      // Throw a custom HttpException instead of just throwing a plain Error
+      const errorMessage = error?.response?.data?.message || 'Something went wrong while fetching recommendations';
+      throw new HttpException(
+        errorMessage,
+        error?.response?.status
+      );
     }
   }
  

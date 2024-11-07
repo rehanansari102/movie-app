@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Request,Get, Param, Patch, HttpCode, HttpStatus, NotFoundException, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Request,Get, Param, Patch, HttpCode, HttpStatus, NotFoundException, UseGuards, Put } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserDto } from '../dtos/user.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -39,9 +39,10 @@ export class UserController {
     };
   }
 
-  @Patch(':id')
+  @Put('me')
   @HttpCode(HttpStatus.OK)
-  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+  async update(@Request() req, @Body() updateUserDto: UpdateUserDto) {
+    const id = req.user.id;
     const user = await this.userService.update(id, updateUserDto);
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);

@@ -21,6 +21,9 @@ export class User {
   image: string;
 
   @Prop()
+  address: string;
+
+  @Prop()
   dateOfBirth: Date;
 
 }
