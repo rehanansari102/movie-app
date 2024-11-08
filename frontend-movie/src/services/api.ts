@@ -54,7 +54,7 @@ export const login = async (credentials: any) => {
 // API for Signup
 export const signup = async (userDetails: any) => {
   const response = await api.post(`/auth/register`, userDetails); // Use 'api' here instead of axios directly
-  localStorage.setItem(TOKEN_KEY, response.data.accessToken); // Store token in local storage
+  localStorage.setItem(TOKEN_KEY, response?.data?.data?.accessToken); // Store token in local storage
   return response.data;
 };
 
